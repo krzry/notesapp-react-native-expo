@@ -1,5 +1,5 @@
 # **Building a React Native Notes App: From Scratch to Production**  
-*(Senior Developer Walkthrough for a Freshman Employee)*  
+*(Senior Developer Walkthrough for a Freshman Employee)*  2
 
 Hey there! 👋 Welcome to the team. Let me walk you through how we built this **React Native Notes App** from scratch. I’ll explain the architecture, key decisions, and how everything connects.  
 
