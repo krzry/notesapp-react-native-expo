@@ -1,75 +1,118 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Link } from 'expo-router';
+import React, { useState } from 'react';
+import { FlatList, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useNotes } from '../../context/NotesContext';
+import { Note } from '../../types/Note';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function NotesScreen() {
+  const { notes, searchNotes } = useNotes();
+  const [searchQuery, setSearchQuery] = useState('');
 
-export default function HomeScreen() {
+  const filteredNotes = searchQuery ? searchNotes(searchQuery) : notes;
+
+  const renderNoteItem = ({ item }: { item: Note }) => (
+    <Link href={`/note/${item.id}`} asChild>
+      <TouchableOpacity style={styles.noteItem}>
+        <Text style={styles.noteTitle}>{item.title}</Text>
+        <Text style={styles.notePreview} numberOfLines={2}>
+          {item.content}
+        </Text>
+        <Text style={styles.noteDate}>
+          {new Date(item.updatedAt).toLocaleDateString()}
+        </Text>
+      </TouchableOpacity>
+    </Link>
+  );
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search notes..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          <Link href="/note/new" asChild>
+            <TouchableOpacity style={styles.addButton}>
+              <Text style={styles.addButtonText}>+</Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
+        <FlatList
+          data={filteredNotes}
+          renderItem={renderNoteItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.notesList}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
   },
-  stepContainer: {
-    gap: 8,
+  container: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    padding: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginRight: 12,
+  },
+  addButton: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#007AFF',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  notesList: {
+    padding: 16,
+  },
+  noteItem: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  noteTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  notePreview: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  noteDate: {
+    fontSize: 12,
+    color: '#999',
   },
 });
